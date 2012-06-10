@@ -1,0 +1,16 @@
+users:
+  - id: 1
+    name: Albert
+    surname: Einstein
+  - id: 2
+    name: Nils
+    surname: Bohr
+  - id: 3
+    name: Max
+    surname: Planck
+  - id: 4
+    name: Ernest
+    surname: Rutherford
+  - id: 5
+    name: Ernest
+    surname: Lawrence

@@ -1,0 +1,16 @@
+posts:
+  - id: 1
+    user_id: 1
+    title: On a Heuristic Viewpoint Concerning the Production and Transformation of Light
+    description: Explanation of photoelectric effect
+    year: 1905
+  - id: 2
+    user_id: 1
+    title: On the Electrodynamics of Moving Bodies
+    description: Special relativity origins
+    year: 1905
+  - id: 3
+    user_id: 1
+    title: The Development of Our Views on the Composition and Essence of Radiation
+    description:
+    year: 1909
