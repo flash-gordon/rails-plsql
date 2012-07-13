@@ -32,7 +32,7 @@ module PLSQL
     end
 
     def uncaught_exception?(error)
-      error && OCIError === error && !error.code.in?(-20999..-20000)
+      error && OCIError === error && !error.code.in?(20000..20999)
     end
   end
 end
