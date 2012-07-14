@@ -6,14 +6,14 @@ Middleware between ActiveRecord and Oracle Database
 Description
 -----------
 
-This gem is ActiveRecord extention for some Oracle Database specific features such as pipelined functions or PL/SQL procedures. It uses [ruby-plsql](https://github.com/rsim/ruby-plsql) and [oracle enhanced adapters](https://github.com/rsim/oracle-enhanced) gems as dependencies for connection to Oracle and calling PL/SQL procedures and functions. It also adds basic logger to [my fork](https://github.com/flash-gordon/ruby-plsql) of ruby-plsql gem.
+This gem is ActiveRecord extention for some Oracle Database specific features such as pipelined functions or PL/SQL procedures. It uses [ruby-plsql](https://github.com/rsim/ruby-plsql) and [oracle enhanced adapter](https://github.com/rsim/oracle-enhanced) gems as dependencies for connection to Oracle and calling PL/SQL procedures and functions. It also adds basic logger to [my fork](https://github.com/flash-gordon/ruby-plsql) of ruby-plsql gem.
 
 Installation
 ------------
 
 ### Rails 3.2
 
-Just put this string in your Gemfile
+Just put this line into your Gemfile
 
     gem 'rails-plsql', '~> 0.1'
 
@@ -32,7 +32,7 @@ Other versions of Rails not tested.
 Usage
 -----
 
-### Pipelined functions as tables in AR models
+### Pipelined functions as tables in ActiveRecord models
 
 Oracle pipelined functions could be used as data source instead of ordinary tables (or views).
 
@@ -88,7 +88,7 @@ class User < ActiveRecord::Base
 end
 ```
 
-And use standard Rails scopes and finders:
+and use standard Rails scopes and finders
 
 ```ruby
 User.alberts
@@ -100,9 +100,9 @@ User.all(conditions: {p_name: 'Max'})
 # [#<User id: #<BigDecimal:6ee2c728,'0.3E1',9(36)>, name: "Max", surname: "Planck">]
 ```
 
-Pipelined function arguments must be set via where condition (see p_name usage above). If not they will be set as NULL.
+Pipelined function arguments must be set via `where` condition (see `p_name` usage above). If not they will be set to NULL.
 
-### Oracle procedures and functions as methods of AR objects
+### Oracle procedures and functions as methods of ActiveRecord objects
 
 If you have some PL/SQL package related with AR model you could bind it to class.
 
@@ -141,13 +141,13 @@ class User < ActiveRecord::Base
 end
 ```
 
-After that you can call procedure as methods
+After that you can call procedure as method
 
 ```ruby
 einstein = User.find_by_name('Albert')
 # Just pass arguments as array or hash
-einstein.salute(p_name: einstein.name)    # 'Hello, Albert!'
-einstein.salute([einstein.surname]) # 'Hello, Einstein!'
+einstein.salute(p_name: einstein.name)  # 'Hello, Albert!'
+einstein.salute([einstein.surname])     # 'Hello, Einstein!'
 ```
 
 Support
