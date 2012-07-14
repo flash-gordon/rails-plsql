@@ -1,4 +1,4 @@
-class OCI
+class OCI8
   class OCINamedError
     class_attribute :oci_error_code, instance_writer: false
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'OCI::OCINamedError' do
+describe 'OCI8::OCINamedError' do
   after(:each) do
     Object.send(:remove_const, :NoDataFoundError) if defined? NoDataFoundError
     Object.send(:remove_const, :CustomError) if defined? CustomError
@@ -28,13 +28,13 @@ describe 'OCI::OCINamedError' do
   end
 
   it 'should allow successor to set Oracle error code' do
-    class NoDataFoundError < OCI::OCINamedError
+    class NoDataFoundError < OCI8::OCINamedError
       self.oci_error_code = 1403
     end
   end
 
   it 'should catch errors by class' do
-    class NoDataFoundError < OCI::OCINamedError
+    class NoDataFoundError < OCI8::OCINamedError
       self.oci_error_code = 1403
     end
 
@@ -49,7 +49,7 @@ describe 'OCI::OCINamedError' do
   end
 
   it 'should create class with Oracle error code' do
-    OCI::OCINamedError.define_exception(:NoDataFoundError, 1403)
+    OCI8::OCINamedError.define_exception(:NoDataFoundError, 1403)
 
     begin
       cursor = ActiveRecord::Base.connection.raw_connection.parse(no_data_found_sql)
@@ -62,7 +62,7 @@ describe 'OCI::OCINamedError' do
   end
 
   it 'should catch custom application errors' do
-    class CustomError < OCI::OCINamedError
+    class CustomError < OCI8::OCINamedError
       self.oci_error_code = 20500
     end
 
