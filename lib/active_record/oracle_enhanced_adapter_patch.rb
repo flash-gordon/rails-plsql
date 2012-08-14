@@ -15,7 +15,13 @@ module ActiveRecord
         table = table.to_s.upcase
         function_name, package_name = table.split('.').reverse
 
-        if (function = ::PLSQL::PipelinedFunction.find(plsql, function_name, package_name))
+        if package_name
+          function = plsql.send(package_name.downcase.to_sym)[function_name.downcase]
+        else
+          raise NotImplementedError
+        end
+
+        if function
           arguments_metadata = function.arguments[0].sort_by {|arg| arg[1][:position]}
           arguments = arguments_metadata.map do |(arg_name, argument)|
             OracleEnhancedColumn.new(arg_name.to_s, nil, argument[:data_type], table)

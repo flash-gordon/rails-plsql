@@ -15,15 +15,14 @@ describe 'ProcedureMethods' do
     SetupHelper.drop_table(:users)
   end
 
-  before(:each) do
+  before do
     ::User = Class.new(ActiveRecord::PLSQL::Base)
+    SetupHelper.clear_schema_cache!
     PLSQL::LogSubscriber.logger = ActiveSupport::BufferedLogger.new($stdout)
     PLSQL::LogSubscriber.logger.level = ActiveSupport::BufferedLogger::ERROR
   end
 
-  after(:each) do
-    Object.send(:remove_const, :User)
-  end
+  after { Object.send(:remove_const, :User) }
 
   describe :saving_via_procedures do
     let(:create_procedure) {plsql.users_pkg['create_user']}

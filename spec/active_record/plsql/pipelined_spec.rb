@@ -17,13 +17,12 @@ describe ActiveRecord::PLSQL::Pipelined do
     SetupHelper.drop_table(:users)
   end
 
-  before(:each) do
+  before do
+    SetupHelper.clear_schema_cache!
     ::User = Class.new(ActiveRecord::PLSQL::Base)
   end
 
-  after(:each) do
-    Object.send(:remove_const, :User)
-  end
+  after { Object.send(:remove_const, :User) }
 
   describe :columns_and_finders do
     it 'should allow to set an Oracle pipelined function as table name' do
