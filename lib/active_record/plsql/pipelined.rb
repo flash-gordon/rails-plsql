@@ -16,7 +16,7 @@ module ActiveRecord::PLSQL
 
     module ClassMethods
       def pipelined_arguments
-        raise PipelinedFunctionError, "Pipelined function didn't set" unless pipelined_function
+        raise PipelinedFunctionError, "Pipelined function didn't set" unless pipelined?
         @pipelined_arguments ||= get_pipelined_arguments
       end
 
@@ -56,12 +56,7 @@ module ActiveRecord::PLSQL
 
         @pipelined_function = pipelined_function
         @pipelined_arguments = nil
-        @columns = nil
-
-        if @pipelined_function
-          set_pipelined_table_name
-          set_function_type_as_columns
-        end
+        @table_name = pipelined_function_name if @pipelined_function
       end
 
       def pipelined_function_name
@@ -71,7 +66,7 @@ module ActiveRecord::PLSQL
       end
 
       def arel_table
-        if pipelined_function
+        if pipelined?
           @arel_table ||= Arel::Table.new(table_name_with_arguments, engine: arel_engine, as: pipelined_function_alias)
         else
           super
@@ -95,26 +90,12 @@ module ActiveRecord::PLSQL
 
       private
 
-        def set_pipelined_table_name
-          @table_name = pipelined_function_name
-        end
-
         def get_pipelined_arguments
           # Always select arguments of first function (overloading not supported)
           arguments_metadata = pipelined_function.arguments[0].sort_by {|arg| arg[1][:position]}
           arguments_metadata.map do |(name, argument)|
             ActiveRecord::ConnectionAdapters::OracleEnhancedColumn.new(name.to_s, nil, argument[:data_type], pipelined_function_name)
           end
-        end
-
-        def set_function_type_as_columns
-          return_columns = pipelined_function.return[:element][:fields].sort_by {|(name, col)| col[:position]}.map do |(name, metadata)|
-            metadata.merge(name: name)
-          end
-
-          connection.schema_cache.columns[table_name] = return_columns.map do |col|
-            ActiveRecord::ConnectionAdapters::OracleEnhancedColumn.new(col[:name].to_s, nil, col[:data_type], pipelined_function_name)
-          end + pipelined_arguments
         end
 
         def relation

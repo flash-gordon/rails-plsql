@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'Pipelined' do
+describe ActiveRecord::PLSQL::Pipelined do
   before(:all) do
     SetupHelper.create_user_table
     SetupHelper.seed(:users)
@@ -39,6 +39,12 @@ describe 'Pipelined' do
       User.pipelined_arguments.first.should be_an ActiveRecord::ConnectionAdapters::OracleEnhancedColumn
       User.pipelined_arguments.map(&:name).should == %w(p_name)
 
+      User.columns.map(&:name).should == %w(id name surname p_name)
+    end
+
+    it 'should be able to restore schema cache' do
+      User.pipelined_function = 'users_pkg.find_users_by_name'
+      SetupHelper.clear_schema_cache!
       User.columns.map(&:name).should == %w(id name surname p_name)
     end
 

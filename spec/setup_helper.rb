@@ -41,41 +41,45 @@ module SetupHelper
     conn.execute('DROP PACKAGE %s' % package) rescue nil
   end
 
-  private
-
-  def fixtures_path
-    @fixtures_path ||= File.join(File.dirname(__FILE__), 'fixtures')
-  end
-
-  def plsql_scripts_path
-    @plsql_scripts_path ||= File.join(fixtures_path, 'plsql')
-  end
-
-  def package_headers_path
-    @package_headers_path ||= File.join(File.join(plsql_scripts_path, 'packages'), 'headers')
-  end
-
-  def package_bodies_path
-    @package_bodies_path ||= File.join(File.join(plsql_scripts_path, 'packages'), 'bodies')
-  end
-
-  def seed_table(table, data)
-    columns = Hash[conn.columns(table).map {|c| [c.name, c]}]
-    data.each {|row| insert_row(table, columns, row)}
-    conn.commit_db_transaction
-  end
-
-  def insert_row(table, columns, data)
-    insert_sql = <<-SQL
-      INSERT INTO #{table}(#{data.keys.join(', ')})
-      VALUES(#{data.keys.map{|s| ':' + s}.join(', ')})
-    SQL
-    binds = data.map {|a| [columns[a[0]], a[1]]}
-
-    conn.exec_insert(insert_sql, 'INSERT', binds)
+  def clear_schema_cache!
+    conn.schema_cache.clear!
   end
 
   def conn
     @conn ||= ActiveRecord::Base.connection
   end
+
+  private
+
+    def fixtures_path
+      @fixtures_path ||= File.join(File.dirname(__FILE__), 'fixtures')
+    end
+
+    def plsql_scripts_path
+      @plsql_scripts_path ||= File.join(fixtures_path, 'plsql')
+    end
+
+    def package_headers_path
+      @package_headers_path ||= File.join(File.join(plsql_scripts_path, 'packages'), 'headers')
+    end
+
+    def package_bodies_path
+      @package_bodies_path ||= File.join(File.join(plsql_scripts_path, 'packages'), 'bodies')
+    end
+
+    def seed_table(table, data)
+      columns = Hash[conn.columns(table).map {|c| [c.name, c]}]
+      data.each {|row| insert_row(table, columns, row)}
+      conn.commit_db_transaction
+    end
+
+    def insert_row(table, columns, data)
+      insert_sql = <<-SQL
+        INSERT INTO #{table}(#{data.keys.join(', ')})
+        VALUES(#{data.keys.map{|s| ':' + s}.join(', ')})
+      SQL
+      binds = data.map {|a| [columns[a[0]], a[1]]}
+
+      conn.exec_insert(insert_sql, 'INSERT', binds)
+    end
 end

@@ -8,7 +8,7 @@ class OCI8
 
     def self.define_exception(class_name, error_code)
       class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
-        class ::#{class_name} < OCI::OCINamedError
+        class ::#{class_name} < OCI8::OCINamedError
           self.oci_error_code = #{error_code}
         end
       RUBY

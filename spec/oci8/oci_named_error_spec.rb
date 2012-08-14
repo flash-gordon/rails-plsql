@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'OCI8::OCINamedError' do
+describe OCI8::OCINamedError do
   after(:each) do
     Object.send(:remove_const, :NoDataFoundError) if defined? NoDataFoundError
     Object.send(:remove_const, :CustomError) if defined? CustomError

@@ -7,5 +7,5 @@ gem 'activerecord-oracle_enhanced-adapter', '~> 1.4'
 gem 'railties', '~> 3.2'
 
 group :test do
-  gem 'rspec', '~> 2.10'
+  gem 'rspec', '~> 2.11'
 end
