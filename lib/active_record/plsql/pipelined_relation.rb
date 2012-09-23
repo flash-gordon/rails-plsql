@@ -40,7 +40,7 @@ module ActiveRecord::PLSQL
     end
 
     def pipelined_arguments_binds_pos(binds = @bind_values)
-      binds.index {|(col,_)| col == pipelined_arguments.first}
+      binds.index {|(col,_)| col.name == pipelined_arguments.first.name}
     end
 
     # Safe arguments binding
