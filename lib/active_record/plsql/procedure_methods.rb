@@ -1,5 +1,4 @@
 require 'active_support/concern'
-require 'active_record/persistence_procedure_patch'
 
 module ActiveRecord::PLSQL
   module ProcedureMethods
@@ -11,7 +10,14 @@ module ActiveRecord::PLSQL
       class_attribute :plsql_package, :procedure_methods_cache, instance_writer: false
       self.plsql_package = nil
       self.procedure_methods_cache = Hash.new do |cache, klass|
-        cache[klass] = {}
+        cache[klass] = Hash.new do |methods, method|
+          # Inherits procedure methods from base class
+          if klass.superclass.respond_to?(:procedure_methods)
+            methods[method] = klass.superclass.procedure_methods[method]
+          else
+            nil
+          end
+        end
       end
     end
 
@@ -35,6 +41,7 @@ module ActiveRecord::PLSQL
         end
 
         procedure_method(:create, procedure, options, &block)
+        set_create_method {call_procedure_method(:create)}
       end
 
       def set_update_procedure(procedure, options = {})
@@ -42,6 +49,12 @@ module ActiveRecord::PLSQL
           record.reload
           record.id
         end
+        set_update_method {call_procedure_method(:update)}
+      end
+
+      def set_destroy_procedure(procedure, options = {})
+        procedure_method(:destroy, procedure, options)
+        set_delete_method {call_procedure_method(:destroy)}
       end
 
       def procedure_methods

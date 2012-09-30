@@ -74,5 +74,14 @@ describe 'ProcedureMethods' do
 
       einstein.salute([einstein.name]).should == 'Hello, Albert!'
     end
+
+    it 'should inherit methods from base class' do
+      User.plsql_package = plsql.users_pkg
+      User.procedure_method(:salute)
+      descendant_class = Class.new(User)
+
+      einstein = descendant_class.find_by_name('Albert')
+      einstein.salute([einstein.name]).should == 'Hello, Albert!'
+    end
   end
 end
