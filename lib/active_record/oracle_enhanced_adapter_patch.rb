@@ -18,7 +18,7 @@ module ActiveRecord
         if package_name
           function = plsql.send(package_name.downcase.to_sym)[function_name.downcase]
         else
-          raise NotImplementedError
+          raise error.class, error.message
         end
 
         if function
