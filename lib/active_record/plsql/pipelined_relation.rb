@@ -46,8 +46,9 @@ module ActiveRecord::PLSQL
     # Safe arguments binding
     def bind_values=(vals)
       if @klass.pipelined? && (pos = pipelined_arguments_binds_pos)
+        vals = vals.map(&:dup)
         merge_pipelined_arguments(pos, vals)
-        super
+        super(vals)
       else
         super
       end

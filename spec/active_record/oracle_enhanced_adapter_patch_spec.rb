@@ -20,7 +20,7 @@ describe ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter do
 
   it 'should return list of columns and arguments for pipelined function' do
     lambda {conn.columns(function)}.should_not raise_error
-    conn.columns(function).map(&:name).should == %w(id name surname p_name)
+    conn.columns(function).map(&:name).should == %w(id name surname country p_name)
   end
 end
 

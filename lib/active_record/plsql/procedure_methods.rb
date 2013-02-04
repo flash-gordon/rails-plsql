@@ -139,7 +139,7 @@ module ActiveRecord::PLSQL
         if Hash === arguments
           arguments.symbolize_keys!
           arguments_metadata = procedures_arguments[procedure]
-          # drop out unnecessary arguments
+          # throw away unnecessary arguments
           [arguments.select {|k,_| arguments_metadata[k]}]
         else
           arguments

@@ -38,13 +38,13 @@ describe ActiveRecord::PLSQL::Pipelined do
       User.pipelined_arguments.first.should be_an ActiveRecord::ConnectionAdapters::OracleEnhancedColumn
       User.pipelined_arguments.map(&:name).should == %w(p_name)
 
-      User.columns.map(&:name).should == %w(id name surname p_name)
+      User.columns.map(&:name).should == %w(id name surname country p_name)
     end
 
     it 'should be able to restore schema cache' do
       User.pipelined_function = 'users_pkg.find_users_by_name'
       SetupHelper.clear_schema_cache!
-      User.columns.map(&:name).should == %w(id name surname p_name)
+      User.columns.map(&:name).should == %w(id name surname country p_name)
     end
 
     it 'should search users via AR::Relation methods' do
@@ -121,6 +121,7 @@ describe ActiveRecord::PLSQL::Pipelined do
     end
 
     let(:einstein) {User.find_by_p_name('Albert')}
+    let(:planck) {User.find_by_p_name('Max')}
 
     it 'should support associations' do
       'On the Electrodynamics of Moving Bodies'.should be_in einstein.posts.map(&:title)
@@ -150,5 +151,16 @@ describe ActiveRecord::PLSQL::Pipelined do
       first_post = einstein.posts.to_a.first
       first_post.user.should == einstein
     end
+
+    it 'should work with shared scope' do
+      User.instance_eval do
+        # create shared scope
+        scope :german, where(country: 'Germany')
+      end
+
+      User.german.where(p_name: 'Albert').first.name.should == 'Albert'
+      User.german.where(p_name: 'Max').first.name.should == 'Max'
+    end
+
   end
 end

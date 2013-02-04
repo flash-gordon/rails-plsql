@@ -2,15 +2,20 @@ users:
   - id: 1
     name: Albert
     surname: Einstein
+    country: Germany
   - id: 2
     name: Nils
     surname: Bohr
+    country: Denmark
   - id: 3
     name: Max
     surname: Planck
+    country: Germany
   - id: 4
     name: Ernest
     surname: Rutherford
+    country: UK
   - id: 5
     name: Ernest
     surname: Lawrence
+    country: US

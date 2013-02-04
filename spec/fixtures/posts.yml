@@ -14,3 +14,13 @@ posts:
     title: The Development of Our Views on the Composition and Essence of Radiation
     description:
     year: 1909
+  - id: 5
+    user_id: 3
+    title: On the Law of Distribution of Energy in the Normal Spectrum
+    description:
+    year: 1901
+  - id: 4
+    user_id: 3
+    title: Entropy and Temperature of Radiant Heat
+    description:
+    year: 1900
