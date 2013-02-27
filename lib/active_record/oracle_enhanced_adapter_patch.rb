@@ -12,8 +12,7 @@ module ActiveRecord
           # Will try to find a pipelined function
         end
 
-        table = table.to_s.upcase
-        function_name, package_name = table.split('.').reverse
+        function_name, package_name = parse_function_name(table)
 
         if package_name
           function = plsql.send(package_name.downcase.to_sym)[function_name.downcase]
@@ -40,6 +39,16 @@ module ActiveRecord
       end
 
       alias_method_chain :columns_without_cache, :pipelined
+
+      def parse_function_name(name)
+        name = name.to_s.upcase
+        # We can get name of function with calling syntax
+        # Just extract function name
+        if name =~ /\ATABLE\((([^.]+\.)[^.]+)\([^)]+\)\)\z/
+          name = $1
+        end
+        name.split('.').reverse
+      end
     end
   end
 end

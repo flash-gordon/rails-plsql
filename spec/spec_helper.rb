@@ -7,6 +7,7 @@ require 'setup_helper'
 
 require 'rspec'
 require 'rails-plsql'
+require 'pry'
 
 CONNECTION_PARAMS = {
   adapter: 'oracle_enhanced',
