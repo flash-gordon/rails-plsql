@@ -1,7 +1,7 @@
 GIT
   remote: git://github.com/flash-gordon/ruby-plsql.git
-  revision: 1c18d00239ad4b411014221eb5988ba269c455de
-  branch: activesupport_notifications
+  revision: 323b7d79843fc0c86e780f1564727cb7a9ccd037
+  branch: current
   specs:
     ruby-plsql (0.5.0)
 
