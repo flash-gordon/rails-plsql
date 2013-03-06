@@ -61,12 +61,15 @@ module ActiveRecord::PLSQL
         procedure_methods_cache[self]
       end
 
-      def procedure_method(method, procedure = method, options = {}, &block)
-        procedure = if PLSQL::Procedure === procedure
-          procedure
+      def procedure_method(method, procedure_name = method, options = {}, &block)
+        procedure = if PLSQL::Procedure === procedure_name
+          procedure_name
         else
-          find_procedure(procedure)
+          find_procedure(procedure_name)
         end
+
+        # Raise error if procedure not found
+        raise ArgumentError, "Procedure (%s) not found for method (%s)" % [procedure_name, method] unless procedure
 
         procedure_methods[method] = {procedure: procedure, options: options, block: block}
 
