@@ -1,5 +1,5 @@
 class OCI8
-  class OCINamedError
+  class OCINamedError < OCIError
     class_attribute :oci_error_code, instance_writer: false
 
     def self.===(error)
