@@ -137,7 +137,8 @@ module ActiveRecord::PLSQL
       end
 
       def get_procedure_arguments(procedure, options)
-        arguments = options[:arguments].dup
+        arguments = options[:arguments]
+        arguments = arguments.dup if arguments.duplicable?
 
         if Hash === arguments
           arguments.symbolize_keys!
