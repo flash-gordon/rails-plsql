@@ -19,10 +19,10 @@ describe OCI8::OCINamedError do
     SQL
   end
 
-  def raise_user_error_sql
+  def raise_user_error_sql(code = 20500)
     <<-SQL
       BEGIN
-        RAISE_APPLICATION_ERROR(-20500, 'Application custom error');
+        RAISE_APPLICATION_ERROR(-#{code}, 'Application custom error');
       END;
     SQL
   end
@@ -68,6 +68,24 @@ describe OCI8::OCINamedError do
 
     begin
       cursor = ActiveRecord::Base.connection.raw_connection.parse(raise_user_error_sql)
+      cursor.exec
+    rescue CustomError
+      nil # success
+    ensure
+      cursor.close
+    end
+  end
+
+  it 'able to work with array of exception codes' do
+    class CustomError < OCI8::OCINamedError
+      self.oci_error_code = [20500, 20501]
+    end
+
+    begin
+      cursor = ActiveRecord::Base.connection.raw_connection.parse(raise_user_error_sql(20500))
+      cursor.exec
+      cursor.close
+      cursor = ActiveRecord::Base.connection.raw_connection.parse(raise_user_error_sql(20501))
       cursor.exec
     rescue CustomError
       nil # success
