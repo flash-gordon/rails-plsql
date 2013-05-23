@@ -10,3 +10,7 @@ group :test do
   gem 'rspec', '~> 2.11'
   gem 'pry'
 end
+
+group :development do
+  gem 'pry'
+end
