@@ -49,6 +49,23 @@ module ActiveRecord
         end
         name.split('.').reverse
       end
+
+      protected
+
+        def translate_exception(exception, message)
+          case @connection.error_code(exception)
+            when 1
+              RecordNotUnique.new(message, exception)
+            when 2291
+              InvalidForeignKey.new(message, exception)
+            # If it's a custom Oracle application exception then just reraise it
+            # without replacing it with StatementInvalid exception
+            when 20000..20999
+              exception
+            else
+              super
+          end
+        end
     end
   end
 end
