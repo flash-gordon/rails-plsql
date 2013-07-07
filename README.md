@@ -15,7 +15,7 @@ Installation
 
 Just put this line into your Gemfile
 
-    gem 'rails-plsql', '~> 0.1'
+    gem 'rails-plsql', '~> 0.1', github: 'flash-gordon/rails-plsql'
 
 Gem tested only with MRI but I think it might work with JRuby and JDBC as well. So if you use ruby-oci8 then add also
 
