@@ -1,3 +1,4 @@
+[![Code Climate](https://codeclimate.com/github/flash-gordon/rails-plsql.png)](https://codeclimate.com/github/flash-gordon/rails-plsql)
 rails-plsql
 ====================================
 
