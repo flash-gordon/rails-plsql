@@ -1,6 +1,15 @@
 require 'active_record/connection_adapters/oracle_enhanced_adapter'
 require 'plsql/pipelined_function'
 
+class ActiveRecord::StatementInvalid
+  attr_reader :original_exception
+
+  def initialize(message, original_exception)
+    @original_exception = original_exception
+    super(message)
+  end
+end
+
 module ActiveRecord
   module ConnectionAdapters
     # interface independent methods
@@ -48,6 +57,19 @@ module ActiveRecord
           name = $1
         end
         name.split('.').reverse
+      end
+
+    protected
+
+      def translate_exception(exception, message) #:nodoc:
+        case @connection.error_code(exception)
+        when 1
+          RecordNotUnique.new(message, exception)
+        when 2291
+          InvalidForeignKey.new(message, exception)
+        else
+          ActiveRecord::StatementInvalid.new(message, exception)
+        end
       end
     end
   end

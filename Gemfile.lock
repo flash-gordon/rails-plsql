@@ -35,16 +35,23 @@ GEM
     coderay (1.0.9)
     diff-lcs (1.2.1)
     erubis (2.7.0)
+    ffi (1.9.0-java)
     hike (1.2.1)
     i18n (0.6.3)
     journey (1.0.4)
     json (1.7.7)
+    json (1.7.7-java)
     method_source (0.8.1)
     multi_json (1.6.1)
     pry (0.9.12)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
       slop (~> 3.4)
+    pry (0.9.12-java)
+      coderay (~> 1.0.5)
+      method_source (~> 0.8)
+      slop (~> 3.4)
+      spoon (~> 0.0)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -72,6 +79,8 @@ GEM
     rspec-mocks (2.13.0)
     ruby-oci8 (2.1.4)
     slop (3.4.3)
+    spoon (0.0.4)
+      ffi
     sprockets (2.2.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -82,6 +91,7 @@ GEM
     tzinfo (0.3.35)
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES

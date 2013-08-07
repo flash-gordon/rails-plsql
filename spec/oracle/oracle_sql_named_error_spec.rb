@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OCI8::OCINamedError do
+describe Oracle::NamedError do
   after(:each) do
     Object.send(:remove_const, :NoDataFoundError) if defined? NoDataFoundError
     Object.send(:remove_const, :CustomError) if defined? CustomError
@@ -28,69 +28,55 @@ describe OCI8::OCINamedError do
   end
 
   it 'should allow successor to set Oracle error code' do
-    class NoDataFoundError < OCI8::OCINamedError
-      self.oci_error_code = 1403
+    class NoDataFoundError < Oracle::NamedError
+      self.error_code = 1403
     end
   end
 
   it 'should catch errors by class' do
-    class NoDataFoundError < OCI8::OCINamedError
-      self.oci_error_code = 1403
+    class NoDataFoundError < Oracle::NamedError
+      self.error_code = 1403
     end
 
     begin
-      cursor = ActiveRecord::Base.connection.raw_connection.parse(no_data_found_sql)
-      cursor.exec
+      ActiveRecord::Base.connection.execute(no_data_found_sql)
     rescue NoDataFoundError
       nil # success
-    ensure
-      cursor.close
     end
   end
 
   it 'should create class with Oracle error code' do
-    OCI8::OCINamedError.define_exception(:NoDataFoundError, 1403)
+    Oracle::NamedError.define_exception(:NoDataFoundError, 1403)
 
     begin
-      cursor = ActiveRecord::Base.connection.raw_connection.parse(no_data_found_sql)
-      cursor.exec
+      ActiveRecord::Base.connection.execute(no_data_found_sql)
     rescue NoDataFoundError
       nil # success
-    ensure
-      cursor.close
     end
   end
 
   it 'should catch custom application errors' do
-    class CustomError < OCI8::OCINamedError
-      self.oci_error_code = 20500
+    class CustomError < Oracle::NamedError
+      self.error_code = 20500
     end
 
     begin
-      cursor = ActiveRecord::Base.connection.raw_connection.parse(raise_user_error_sql)
-      cursor.exec
+      ActiveRecord::Base.connection.execute(raise_user_error_sql)
     rescue CustomError
       nil # success
-    ensure
-      cursor.close
     end
   end
 
   it 'able to work with array of exception codes' do
-    class CustomError < OCI8::OCINamedError
-      self.oci_error_code = [20500, 20501]
+    class CustomError < Oracle::NamedError
+      self.error_code = [20500, 20501]
     end
 
     begin
-      cursor = ActiveRecord::Base.connection.raw_connection.parse(raise_user_error_sql(20500))
-      cursor.exec
-      cursor.close
-      cursor = ActiveRecord::Base.connection.raw_connection.parse(raise_user_error_sql(20501))
-      cursor.exec
+      ActiveRecord::Base.connection.execute(raise_user_error_sql(20500))
+      ActiveRecord::Base.connection.execute(raise_user_error_sql(20501))
     rescue CustomError
       nil # success
-    ensure
-      cursor.close
     end
   end
 end

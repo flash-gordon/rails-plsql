@@ -6,7 +6,7 @@ Middleware between ActiveRecord and Oracle Database
 Description
 -----------
 
-This gem is ActiveRecord extention for some Oracle Database specific features such as pipelined functions or PL/SQL procedures. It uses [ruby-plsql](https://github.com/rsim/ruby-plsql) and [oracle enhanced adapter](https://github.com/rsim/oracle-enhanced) gems as dependencies for connection to Oracle and calling PL/SQL procedures and functions. It also adds basic logger to [my fork](https://github.com/flash-gordon/ruby-plsql) of ruby-plsql gem.
+This gem is ActiveRecord extension for some Oracle Database specific features such as pipelined functions or PL/SQL procedures. It uses [ruby-plsql](https://github.com/rsim/ruby-plsql) and [oracle enhanced adapter](https://github.com/rsim/oracle-enhanced) gems as dependencies for connection to Oracle and calling PL/SQL procedures and functions. It also adds basic logger to [my fork](https://github.com/flash-gordon/ruby-plsql) of ruby-plsql gem.
 
 Installation
 ------------
@@ -17,7 +17,7 @@ Just put this line into your Gemfile
 
     gem 'rails-plsql', '~> 0.1'
 
-Gem tested only with MRI but I think it might work with JRuby and JDBC as well. So if you use ruby-oci8 then add also
+Gem tested with MRI 1.9.2, 1.9.3, 2.0.0 and JRuby 1.7.4. So if you use ruby-oci8 then add also
 
     gem 'ruby-oci8', '~> 2.1.0'
 
