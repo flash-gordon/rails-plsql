@@ -1,3 +1,4 @@
+[![Code Climate](https://codeclimate.com/github/flash-gordon/rails-plsql.png)](https://codeclimate.com/github/flash-gordon/rails-plsql)
 rails-plsql
 ====================================
 
@@ -15,7 +16,7 @@ Installation
 
 Just put this line into your Gemfile
 
-    gem 'rails-plsql', '~> 0.1'
+    gem 'rails-plsql', '~> 0.1', github: 'flash-gordon/rails-plsql'
 
 Gem tested with MRI 1.9.2, 1.9.3, 2.0.0 and JRuby 1.7.4. So if you use ruby-oci8 then add also
 
