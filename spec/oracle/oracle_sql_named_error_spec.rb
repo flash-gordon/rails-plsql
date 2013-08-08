@@ -4,6 +4,7 @@ describe Oracle::NamedError do
   after(:each) do
     Object.send(:remove_const, :NoDataFoundError) if defined? NoDataFoundError
     Object.send(:remove_const, :CustomError) if defined? CustomError
+    Object.send(:remove_const, :AnotherCustomError) if defined? AnotherCustomError
   end
 
   def no_data_found_sql
@@ -63,7 +64,7 @@ describe Oracle::NamedError do
     begin
       ActiveRecord::Base.connection.execute(raise_user_error_sql)
     rescue CustomError
-      nil # success
+      # success
     end
   end
 
@@ -74,9 +75,48 @@ describe Oracle::NamedError do
 
     begin
       ActiveRecord::Base.connection.execute(raise_user_error_sql(20500))
+    rescue CustomError
+      nil # success
+    end
+
+    begin
       ActiveRecord::Base.connection.execute(raise_user_error_sql(20501))
     rescue CustomError
       nil # success
     end
+  end
+
+  it 'should choose right exception by type' do
+    class CustomError < Oracle::NamedError
+      self.error_code = 20600
+    end
+
+    class AnotherCustomError < Oracle::NamedError
+      self.error_code = 20700
+    end
+
+    exception_type = nil
+    
+    begin
+      ActiveRecord::Base.connection.execute(raise_user_error_sql(CustomError.error_code))
+    rescue CustomError
+      exception_type = :custom_error
+    rescue AnotherCustomError
+      exception_type = :another_custom_error
+    end
+
+    exception_type.should == :custom_error
+
+    exception_type = nil
+
+    begin
+      ActiveRecord::Base.connection.execute(raise_user_error_sql(AnotherCustomError.error_code))
+    rescue CustomError
+      exception_type = :custom_error
+    rescue AnotherCustomError
+      exception_type = :another_custom_error
+    end
+
+    exception_type.should == :another_custom_error
   end
 end

@@ -1,4 +1,4 @@
-class Java::JavaSQL::OracleNamedError < Java::JavaSQL::SQLException
+class OracleNamedError < Java::JavaSql::SQLException#Exception
   class_attribute :error_code, instance_writer: false
 
   UNHANDLED_ERROR = 6512
@@ -6,7 +6,8 @@ class Java::JavaSQL::OracleNamedError < Java::JavaSQL::SQLException
   class << self
     def ===(error)
       error = error.original_exception if error.respond_to?(:original_exception)
-      error = error.cause if error.respond_to?(:cause)
+      error = error.cause if error.respond_to?(:cause) && error.cause
+
       Java::JavaSql::SQLException === error &&
           (error.get_error_code.in?([*error_code]) ||
            # ORA-06512: at line 1
@@ -17,7 +18,7 @@ class Java::JavaSQL::OracleNamedError < Java::JavaSQL::SQLException
 
     def define_exception(class_name, error_code)
       class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
-        class ::#{class_name} < Java::JavaSQL::OracleNamedError
+        class ::#{class_name} < OracleNamedError
           self.error_code = #{error_code}
         end
       RUBY

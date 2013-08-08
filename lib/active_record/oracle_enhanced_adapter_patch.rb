@@ -67,6 +67,8 @@ module ActiveRecord
           RecordNotUnique.new(message, exception)
         when 2291
           InvalidForeignKey.new(message, exception)
+        when 20000..20999 # Skip user-defined errors
+          raise
         else
           ActiveRecord::StatementInvalid.new(message, exception)
         end
