@@ -2,7 +2,7 @@
 # project in your rails apps through git.
 Gem::Specification.new do |s|
   s.name = 'rails-plsql'
-  s.version = '0.2.2'
+  s.version = '0.2.3'
   s.authors = ['Nikita Shilnikov']
   s.email = %w(fg@flashgordon.ru)
   s.homepage = 'http://github.com/flash-gordon/rails-plsql'

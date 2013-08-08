@@ -1,4 +1,4 @@
-class OracleNamedError < Java::JavaSql::SQLException#Exception
+class OracleNamedError < StandardError
   class_attribute :error_code, instance_writer: false
 
   UNHANDLED_ERROR = 6512
