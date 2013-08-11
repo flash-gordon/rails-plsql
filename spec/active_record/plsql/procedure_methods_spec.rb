@@ -83,5 +83,23 @@ describe 'ProcedureMethods' do
       einstein = descendant_class.find_by_name('Albert')
       einstein.salute([einstein.name]).should == 'Hello, Albert!'
     end
+
+    it 'supports super call' do
+      User.plsql_package = plsql.users_pkg
+      User.procedure_method(:salute)
+
+      called_with_super = false
+
+      User.class_eval do
+        define_method(:salute) do |*args|
+          called_with_super = true
+          super(*args)
+        end
+      end
+
+      bohr.salute([bohr.name])
+
+      expect(called_with_super).to be true
+    end
   end
 end

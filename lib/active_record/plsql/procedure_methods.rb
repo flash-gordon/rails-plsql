@@ -74,7 +74,7 @@ module ActiveRecord::PLSQL
         procedure_methods[method] = {procedure: procedure, options: options, block: block}
 
         unless (instance_methods + private_instance_methods).find {|m| m == method}
-          class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
+          generated_feature_methods.class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
             def #{method}(arguments = {}, options = {})
               call_procedure_method(:#{method}, arguments, options)
             end
