@@ -99,7 +99,6 @@ describe ActiveRecord::PLSQL::Pipelined do
       User.pipelined_function = 'users_pkg.find_users_by_name'
 
       rutherford = User.where(p_name: 'Ernest').where("surname = 'Rutherford'").to_a
-      pending 'todo'
       rutherford.map(&:surname).uniq.should == %w(Rutherford)
     end
   end

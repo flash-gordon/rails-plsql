@@ -10,6 +10,7 @@ module ActiveRecord::PLSQL
       return super if opts.blank?
 
       relation = bind_pipelined_arguments(opts)
+
       opts.reject! {|k| pipelined_args.include?(k)}
       # bind rest of arguments
       relation.where_values += build_where(opts, rest)
@@ -18,8 +19,12 @@ module ActiveRecord::PLSQL
 
     def bind_pipelined_arguments(values)
       relation = clone
-      arguments_values = values.values_at(*pipelined_arguments_names.map(&:to_sym))
-      relation.bind_values += pipelined_arguments.zip(arguments_values)
+      if values.is_a?(Hash)
+        arguments_values = values.values_at(*pipelined_arguments_names.map(&:to_sym))
+        relation.bind_values += pipelined_arguments.zip(arguments_values)
+      else
+        relation.where_values += values
+      end
       relation
     end
 
@@ -80,6 +85,8 @@ module ActiveRecord::PLSQL
           if args.include?(column) && !opts.right.is_a?(Arel::Attributes::Attribute)
             {column => opts.right}
           end
+        else
+          [opts]
         end
       end
   end
