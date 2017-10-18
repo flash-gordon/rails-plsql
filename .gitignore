@@ -20,3 +20,4 @@ log/*
 .rvmrc
 atlassian-ide-plugin.xml
 config/hupo_configuration.yml
+Gemfile.lock

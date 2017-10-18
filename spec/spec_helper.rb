@@ -12,9 +12,9 @@ require 'rails'
 
 CONNECTION_PARAMS = {
   adapter: 'oracle_enhanced',
-  database: 'dev4',
-  username: 'ais_net',
-  password: 'ais_net'
+  database: ENV['RAILS_PLSQL_DB'],
+  username: ENV['RAILS_PLSQL_USERNAME'],
+  password: ENV['RAILS_PLSQL_PASSWORD']
 }
 
 ActiveRecord::Base.establish_connection(CONNECTION_PARAMS)
@@ -22,7 +22,7 @@ plsql.activerecord_class = ActiveRecord::Base
 
 RSpec.configure do |config|
   # Use color in STDOUT
-  config.color_enabled = true
+  config.color = true
   # Use color not only in STDOUT but also in pagers and files
   config.tty = true
   # Use the specified formatter
