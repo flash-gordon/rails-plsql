@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'ProcedureMethods' do
+RSpec.describe 'ProcedureMethods' do
   before(:all) do
     SetupHelper.create_user_table
     SetupHelper.create_post_table
@@ -34,8 +34,8 @@ describe 'ProcedureMethods' do
       User.set_create_procedure(create_procedure)
       User.set_update_procedure(update_procedure)
 
-      User.procedure_methods[:create][:procedure].should == create_procedure
-      User.procedure_methods[:update][:procedure].should == update_procedure
+      expect(User.procedure_methods[:create][:procedure]).to eql(create_procedure)
+      expect(User.procedure_methods[:update][:procedure]).to eql(update_procedure)
     end
 
     it 'should update records via procedure' do
@@ -43,7 +43,7 @@ describe 'ProcedureMethods' do
 
       bohr.name = 'AAGE'
       bohr.save
-      bohr.name.should == 'Aage'
+      expect(bohr.name).to eql('Aage')
     end
 
     it 'should create records via procedure' do
@@ -54,9 +54,9 @@ describe 'ProcedureMethods' do
       bohr.surname = 'BOHR'
       bohr.save
 
-      bohr.id.should_not be_nil
-      bohr.name.should == 'Aage'
-      bohr.surname.should == 'Bohr'
+      expect(bohr.id).not_to be_nil
+      expect(bohr.name).to eql('Aage')
+      expect(bohr.surname).to eql('Bohr')
     end
 
     it 'should run create and update callbacks' do
@@ -65,14 +65,14 @@ describe 'ProcedureMethods' do
       User.set_create_procedure(create_procedure, arguments: proc { {p_name: name, p_surname: surname} })
       User.after_create { cnt += 1 }
       User.create(name: 'AAGE', surname: 'BOHR')
-      cnt.should == 1
+      expect(cnt).to eql(1)
     end
 
     it 'should call procedures as methods' do
       User.plsql_package = plsql.users_pkg
       User.procedure_method(:salute)
 
-      einstein.salute([einstein.name]).should == 'Hello, Albert!'
+      expect(einstein.salute([einstein.name])).to eql('Hello, Albert!')
     end
 
     it 'should inherit methods from base class' do
@@ -81,7 +81,7 @@ describe 'ProcedureMethods' do
       descendant_class = Class.new(User)
 
       einstein = descendant_class.find_by_name('Albert')
-      einstein.salute([einstein.name]).should == 'Hello, Albert!'
+      expect(einstein.salute([einstein.name])).to eql('Hello, Albert!')
     end
 
     it 'supports super call' do

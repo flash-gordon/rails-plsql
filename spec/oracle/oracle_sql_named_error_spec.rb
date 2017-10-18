@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Oracle::NamedError do
+RSpec.describe Oracle::NamedError do
   after(:each) do
     Object.send(:remove_const, :NoDataFoundError) if defined? NoDataFoundError
     Object.send(:remove_const, :CustomError) if defined? CustomError
@@ -96,7 +96,7 @@ describe Oracle::NamedError do
     end
 
     exception_type = nil
-    
+
     begin
       ActiveRecord::Base.connection.execute(raise_user_error_sql(CustomError.error_code))
     rescue CustomError
@@ -105,7 +105,7 @@ describe Oracle::NamedError do
       exception_type = :another_custom_error
     end
 
-    exception_type.should == :custom_error
+    expect(exception_type).to eql(:custom_error)
 
     exception_type = nil
 
@@ -117,6 +117,6 @@ describe Oracle::NamedError do
       exception_type = :another_custom_error
     end
 
-    exception_type.should == :another_custom_error
+    expect(exception_type).to eql(:another_custom_error)
   end
 end
