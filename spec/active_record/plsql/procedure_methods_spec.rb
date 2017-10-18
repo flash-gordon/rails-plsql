@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe 'ProcedureMethods' do
   before(:all) do
     SetupHelper.create_user_table

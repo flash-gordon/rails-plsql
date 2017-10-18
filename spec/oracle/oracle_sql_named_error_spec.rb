@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe Oracle::NamedError do
   after(:each) do
     Object.send(:remove_const, :NoDataFoundError) if defined? NoDataFoundError

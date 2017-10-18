@@ -1,6 +1,4 @@
-require 'spec_helper'
 require 'active_support/log_subscriber/test_helper'
-
 
 RSpec.configure do |c|
   c.include ActiveSupport::LogSubscriber::TestHelper

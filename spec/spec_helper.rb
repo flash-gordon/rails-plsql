@@ -10,6 +10,11 @@ require 'rails-plsql'
 require 'pry'
 require 'rails'
 
+begin
+  require 'pry-byebug'
+rescue LoadError
+end
+
 CONNECTION_PARAMS = {
   adapter: 'oracle_enhanced',
   database: ENV['RAILS_PLSQL_DB'],

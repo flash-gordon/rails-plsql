@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 RSpec.describe ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter do
   let(:function) {'users_pkg.find_users_by_name'}
   subject(:conn) { SetupHelper.conn }
