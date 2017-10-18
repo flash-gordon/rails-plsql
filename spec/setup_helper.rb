@@ -10,7 +10,6 @@ module SetupHelper
 
   def create_user_table
     conn.create_table(:users) do |t|
-      t.integer :id, primary_key: true
       t.string  :name
       t.string  :surname
       t.string  :country
@@ -19,7 +18,6 @@ module SetupHelper
 
   def create_post_table
     conn.create_table(:posts) do |t|
-      t.integer :id, primary_key: true
       t.integer :user_id
       t.string  :title
       t.string  :description

@@ -31,16 +31,16 @@ module ActiveRecord
 
         if function
           arguments_metadata = function.arguments[0].sort_by {|arg| arg[1][:position]}
-          arguments = arguments_metadata.map do |(arg_name, argument)|
-            OracleEnhancedColumn.new(arg_name.to_s, nil, argument[:data_type], table)
+          arguments = arguments_metadata.map do |arg_name, argument|
+            OracleEnhancedColumn.new(arg_name.to_s, nil, fetch_type_metadata(argument[:data_type]), table)
           end
 
-          return_columns = function.return[:element][:fields].sort_by {|(col_name, col)| col[:position]}.map do |(col_name, metadata)|
+          return_columns = function.return[:element][:fields].sort_by {|col_name, col| col[:position]}.map do |col_name, metadata|
             metadata.merge(name: col_name)
           end
 
           return_columns.map do |col|
-            OracleEnhancedColumn.new(col[:name].to_s, nil, col[:data_type], table)
+            OracleEnhancedColumn.new(col[:name].to_s, nil, fetch_type_metadata(col[:data_type]), table)
           end + arguments
         else
           raise error.class, error.message
