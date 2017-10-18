@@ -13,10 +13,10 @@ end
 module ActiveRecord
   module ConnectionAdapters
     # interface independent methods
-    class OracleEnhancedAdapter
-      def columns_without_cache_with_pipelined(table, name)
+    module PipelinedFunctions
+      def columns_without_cache(table, name)
         begin
-          return columns_without_cache_without_pipelined(table, name)
+          return super
         rescue OracleEnhancedConnectionException => error
           # Will try to find a pipelined function
         end
@@ -47,8 +47,6 @@ module ActiveRecord
         end
       end
 
-      alias_method_chain :columns_without_cache, :pipelined
-
       def parse_function_name(name)
         name = name.to_s.upcase
         # We can get name of function with calling syntax
@@ -59,7 +57,7 @@ module ActiveRecord
         name.split('.').reverse
       end
 
-    protected
+      protected
 
       def translate_exception(exception, message) #:nodoc:
         case @connection.error_code(exception)
@@ -74,5 +72,7 @@ module ActiveRecord
         end
       end
     end
+
+    OracleEnhancedAdapter.prepend(PipelinedFunctions)
   end
 end
