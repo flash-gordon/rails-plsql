@@ -71,6 +71,14 @@ module ActiveRecord
           ActiveRecord::StatementInvalid.new(message, exception)
         end
       end
+
+      def type_cast(value, *)
+        if value.is_a?(BigDecimal)
+          value
+        else
+          super
+        end
+      end
     end
 
     OracleEnhancedAdapter.prepend(PipelinedFunctions)

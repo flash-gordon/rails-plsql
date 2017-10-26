@@ -1,93 +1,152 @@
 module ActiveRecord::PLSQL
   class PipelinedRelation < ActiveRecord::Relation
+    class FromClause < ActiveRecord::Relation::FromClause
+      def initialize(value, name, binds = nil)
+        super(value, name)
+
+        @binds = binds
+      end
+
+      def binds
+        @binds || super
+      end
+
+      def table_binds
+        @binds || []
+      end
+    end
+
     attr_accessor :pipelined_arguments_values
 
     def where(opts, *rest)
       return super unless @klass.pipelined? && pipelined_arguments.any?
 
       pipelined_args = pipelined_arguments_names.map(&:to_sym)
-      opts = normalize_arguments_conditions(opts, pipelined_args)
-      return super if opts.blank?
+      normalized_opts = normalize_arguments_conditions(opts, pipelined_args)
+      return super if normalized_opts.empty?
 
-      relation = bind_pipelined_arguments(opts)
+      pipelined_binds = get_pipelined_arguments(table_binds, normalized_opts)
+      where_opts = normalized_opts.reject { |k| pipelined_args.include?(k) }
 
-      opts.reject! {|k| pipelined_args.include?(k)}
-      # bind rest of arguments
-      relation.where_values += build_where(opts, rest)
-      relation
-    end
+      rel = spawn.from!(
+        table_name_with_arguments,
+        pipelined_function_alias.to_sym,
+        pipelined_binds
+      )
 
-    def bind_pipelined_arguments(values)
-      relation = clone
-      if values.is_a?(Hash)
-        arguments_values = values.values_at(*pipelined_arguments_names.map(&:to_sym))
-        relation.bind_values += pipelined_arguments.zip(arguments_values)
+      if where_opts.empty? && rest.empty?
+        rel
+      elsif where_opts.empty?
+        rel.where!(*rest)
+      elsif where_opts.is_a?(Array)
+        rel.where!(*where_opts, *rest)
       else
-        relation.where_values += values
+        rel.where!(where_opts, *rest)
       end
-      relation
     end
 
-    def merge_pipelined_arguments(pos, values)
-      new_values_pos = pos + pipelined_arguments.size
-      exist_args = values[pos...new_values_pos]
-      new_values = values[new_values_pos..-1]
-      new_args_pos = pipelined_arguments_binds_pos(new_values)
-      # return if there are no new argument values
-      return unless new_args_pos
-      new_arguments = new_values[new_args_pos...(new_args_pos + pipelined_arguments.size)]
-      # overriding nil arguments
-      new_arguments.each_with_index {|val, idx| exist_args[idx][1] ||= val[1]}
-      # exclude new arguments
-      values[(new_values_pos + new_args_pos)...(new_values_pos + new_args_pos + pipelined_arguments.size)] = nil
-      # drop nil
-      values.compact!
+    def where!(opts, *rest)
+      return super unless @klass.pipelined? && pipelined_arguments.any?
+
+      pipelined_args = pipelined_arguments_names.map(&:to_sym)
+      normalized_opts = normalize_arguments_conditions(opts, pipelined_args)
+      return super if normalized_opts.empty?
+
+      pipelined_binds = get_pipelined_arguments(table_binds, normalized_opts)
+      where_opts = normalized_opts.reject { |k| pipelined_args.include?(k) }
+
+      from!(
+        table_name_with_arguments,
+        pipelined_function_alias.to_sym,
+        pipelined_binds
+      )
+
+      if where_opts.empty? && rest.empty?
+        self
+      elsif where_opts.empty?
+        super(*rest)
+      else
+        super(where_opts, *rest)
+      end
     end
 
-    def pipelined_arguments_binds_pos(binds = @bind_values)
-      binds.index {|(col,_)| col.name == pipelined_arguments.first.name}
+    def get_pipelined_arguments(current, values)
+      if values.is_a?(Hash)
+        pipelined_arguments_names.map do |name|
+          ActiveRecord::Attribute.with_cast_value(
+            name,
+            values.fetch(name.to_sym) {
+              cur = current.find { |arg| arg.name.to_sym == name.to_sym }
+              cur ? cur.value : nil
+            },
+            ActiveRecord::Type.default_value
+          )
+        end
+      else
+        current
+      end
     end
 
-    # Safe arguments binding
-    def bind_values=(vals)
-      if @klass.pipelined? && (pos = pipelined_arguments_binds_pos)
-        vals = vals.map(&:dup)
-        merge_pipelined_arguments(pos, vals)
-        super(vals)
+    def table_binds
+      if from_clause.is_a?(FromClause)
+        from_clause.table_binds
+      else
+        []
+      end
+    end
+
+    def build_from
+      if @klass.pipelined?
+        @klass.arel_table
       else
         super
       end
     end
 
+    def table
+      if @klass.pipelined?
+        @klass.arel_table
+      else
+        super
+      end
+    end
+
+    def from!(value, subquery_name = nil, binds = nil) # :nodoc:
+      self.from_clause = FromClause.new(value, subquery_name, binds)
+      self
+    end
+
     def exec_queries
-      return super unless @klass.pipelined? && pipelined_arguments.any?
+      return super unless @klass.pipelined? && !pipelined_arguments.empty?
       return @records if loaded?
       super
       return @records if @records.empty?
 
-      pos = pipelined_arguments_binds_pos
-      found_by_arguments = @bind_values[pos...(pos + pipelined_arguments.size)]
       # save arguments for easy reloading
-      @records.each {|record| record.found_by_arguments = found_by_arguments}
+      @records.each { |record| record.found_by_arguments = table_binds }
       @records
     end
 
     protected
 
-      def normalize_arguments_conditions(opts, args)
-        case opts
-        when Hash
-          opts.symbolize_keys
-        when Arel::Nodes::Equality
-          column = opts.left.name.to_sym
-
-          # only simple types for a while
-          if args.include?(column) && !opts.right.is_a?(Arel::Attributes::Attribute)
-            {column => opts.right}
-          end
+    def normalize_arguments_conditions(opts, args)
+      case opts
+      when Hash
+        if opts.key?(klass.pipelined_function_name)
+          opts[klass.pipelined_function_name].symbolize_keys
         else
-          [opts]
+          opts.symbolize_keys
         end
+      when Arel::Nodes::Equality
+        column = opts.left.name.to_sym
+
+        # only simple types for now
+        if args.include?(column) && !opts.right.is_a?(Arel::Attributes::Attribute)
+          { column => opts.right }
+        end
+      else
+        [opts]
       end
+    end
   end
 end

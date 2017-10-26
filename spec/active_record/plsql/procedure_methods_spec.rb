@@ -16,8 +16,8 @@ RSpec.describe 'ProcedureMethods' do
   before do
     ::User = Class.new(ActiveRecord::PLSQL::Base)
     SetupHelper.clear_schema_cache!
-    PLSQL::LogSubscriber.logger = ActiveSupport::BufferedLogger.new($stdout)
-    PLSQL::LogSubscriber.logger.level = ActiveSupport::BufferedLogger::ERROR
+    PLSQL::LogSubscriber.logger = ActiveSupport::Logger.new($stdout)
+    PLSQL::LogSubscriber.logger.level = ActiveSupport::Logger::ERROR
   end
 
   after { Object.send(:remove_const, :User) }

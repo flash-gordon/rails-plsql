@@ -9,6 +9,7 @@ module SetupHelper
   end
 
   def create_user_table
+    drop_table?(:users)
     conn.create_table(:users) do |t|
       t.string  :name
       t.string  :surname
@@ -17,12 +18,18 @@ module SetupHelper
   end
 
   def create_post_table
+    drop_table?(:posts)
     conn.create_table(:posts) do |t|
       t.integer :user_id
       t.string  :title
       t.string  :description
       t.integer :year
     end
+  end
+
+  def drop_table?(table_name)
+    conn.drop_table(table_name)
+  rescue ActiveRecord::StatementInvalid
   end
 
   def seed(table_name)

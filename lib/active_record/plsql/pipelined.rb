@@ -7,11 +7,17 @@ module ActiveRecord::PLSQL
     class PipelinedFunctionError < ActiveRecord::ActiveRecordError; end
 
     class PipelinedFunctionTableName < Arel::Nodes::SqlLiteral
-      def to_s;self end
+      alias_method :to_s, :itself
     end
 
     included do
       self.pipelined_function = nil
+    end
+
+    module DisableBinding
+      def can_be_bound?(*)
+        false
+      end
     end
 
     module ClassMethods
@@ -67,7 +73,10 @@ module ActiveRecord::PLSQL
 
       def arel_table
         if pipelined?
-          @arel_table ||= Arel::Table.new(table_name_with_arguments, engine: arel_engine, as: pipelined_function_alias)
+          @arel_table ||= Arel::Table.new(
+            table_name_with_arguments,
+            as: pipelined_function_alias
+          )
         else
           super
         end
@@ -80,7 +89,7 @@ module ActiveRecord::PLSQL
 
       def table_name_with_arguments
         @table_name_with_arguments ||= PipelinedFunctionTableName.new(
-            "TABLE(%s(%s))" % [table_name, pipelined_arguments.map{|a| ":#{a.name}"}.join(',')]
+          "TABLE(%s(%s))" % [table_name, pipelined_arguments.map{|a| ":#{a.name}"}.join(',')]
         )
       end
 
@@ -88,20 +97,26 @@ module ActiveRecord::PLSQL
         pipelined? || super
       end
 
+      def predicate_builder
+        @_predicate_builder ||= super.extend(DisableBinding)
+      end
+
       private
 
-        def get_pipelined_arguments
-          # Always select arguments of first function (overloading not supported)
-          arguments_metadata = pipelined_function.arguments[0].sort_by {|arg| arg[1][:position]}
-          arguments_metadata.map do |(name, argument)|
-            ActiveRecord::ConnectionAdapters::OracleEnhancedColumn.new(name.to_s, nil, argument[:data_type], pipelined_function_name)
-          end
+      def get_pipelined_arguments
+        # Always select arguments of first function (overloading not supported)
+        arguments_metadata = pipelined_function.arguments[0].sort_by {|arg| arg[1][:position]}
+        arguments_metadata.map do |name, argument|
+          ActiveRecord::ConnectionAdapters::OracleEnhancedColumn.new(
+            name.to_s, nil, connection.fetch_type_metadata(argument[:data_type]), pipelined_function_name
+          )
         end
+      end
 
-        def relation
-          return super unless pipelined?
-          @relation ||= PipelinedRelation.new(self, arel_table)
-        end
+      def relation
+        return super unless pipelined?
+        @relation ||= PipelinedRelation.new(self, arel_table, predicate_builder)
+      end
     end
 
     delegate :pipelined?, to: 'self.class'
@@ -114,24 +129,22 @@ module ActiveRecord::PLSQL
       clear_aggregation_cache
       clear_association_cache
 
-      ActiveRecord::IdentityMap.without do
-        fresh_object = self.class.unscoped do
-          relation = self.class.where(self.class.primary_key => id)
+      fresh_object = self.class.unscoped do
+        relation = self.class.where(
+          **found_by_arguments.each_with_object({}) { |arg, hash|
+            hash[arg.name.to_sym] = arg.value
+          },
+          self.class.primary_key => id,
+        )
 
-          if found_by_arguments
-            relation.bind_values += found_by_arguments
-            relation.to_a.first
-          else
-            relation.where(options).to_a.first
-          end
-        end
-
-        @attributes.update(fresh_object.instance_variable_get('@attributes'))
+        relation.to_a[0]
       end
 
-      @attributes_cache = {}
+      @attributes = fresh_object.instance_variable_get("@attributes")
+      @new_record = false
+
+      @changed_attributes = ActiveSupport::HashWithIndifferentAccess.new
       self
     end
-
   end
 end

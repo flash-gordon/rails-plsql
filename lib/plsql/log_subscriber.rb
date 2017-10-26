@@ -31,8 +31,14 @@ module PLSQL
       end
     end
 
+    private
+
     def uncaught_exception?(error)
       error && OCIError === error && !error.code.in?(20000..20999)
+    end
+
+    def logger
+      self.class.logger || super
     end
   end
 end

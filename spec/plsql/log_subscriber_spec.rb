@@ -5,8 +5,8 @@ RSpec.configure do |c|
 end
 
 RSpec.describe 'PLSQL::LogSubscriber' do
-  let(:logger_type) {ActiveSupport::LogSubscriber::TestHelper::MockLogger}
-  let(:logger) {PLSQL::LogSubscriber.logger}
+  let(:logger_type) { ActiveSupport::LogSubscriber::TestHelper::MockLogger }
+  let(:logger) { PLSQL::LogSubscriber.logger }
 
   before(:each) do
     ::User = Class.new(ActiveRecord::PLSQL::Base)

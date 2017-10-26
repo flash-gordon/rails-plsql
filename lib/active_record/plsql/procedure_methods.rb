@@ -1,4 +1,5 @@
 require 'active_support/concern'
+require 'active_record/connection_adapters/oracle_enhanced/procedures'
 
 module ActiveRecord::PLSQL
   module ProcedureMethods
@@ -7,6 +8,8 @@ module ActiveRecord::PLSQL
     class CannotFetchId < StandardError; end
 
     included do
+      include ActiveRecord::OracleEnhancedProcedures
+
       class_attribute :plsql_package, :procedure_methods_cache, instance_writer: false
       self.plsql_package = nil
       self.procedure_methods_cache = Hash.new do |cache, klass|
@@ -74,7 +77,7 @@ module ActiveRecord::PLSQL
         procedure_methods[method] = {procedure: procedure, options: options, block: block}
 
         unless (instance_methods + private_instance_methods).find {|m| m == method}
-          generated_feature_methods.class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
+          @generated_attribute_methods.class_eval(<<-RUBY, __FILE__, __LINE__ + 1)
             def #{method}(arguments = {}, options = {})
               call_procedure_method(:#{method}, arguments, options)
             end
@@ -151,4 +154,3 @@ module ActiveRecord::PLSQL
       end
   end
 end
-
