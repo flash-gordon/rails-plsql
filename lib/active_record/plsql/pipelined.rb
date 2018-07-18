@@ -130,10 +130,9 @@ module ActiveRecord::PLSQL
       clear_association_cache
 
       fresh_object = self.class.unscoped do
+        args = try_get_arguments(found_by_arguments).merge(options || {})
         relation = self.class.where(
-          **found_by_arguments.each_with_object({}) { |arg, hash|
-            hash[arg.name.to_sym] = arg.value
-          },
+          **args,
           self.class.primary_key => id,
         )
 
@@ -145,6 +144,16 @@ module ActiveRecord::PLSQL
 
       @changed_attributes = ActiveSupport::HashWithIndifferentAccess.new
       self
+    end
+
+    private
+
+    def try_get_arguments(arguments)
+      if arguments
+        arguments.each_with_object({}) { |arg, hash| hash[arg.name.to_sym] = arg.value }
+      else
+        {}
+      end
     end
   end
 end
