@@ -14,7 +14,7 @@ class OCI8
       def ===(error)
         error = error.original_exception if error.respond_to?(:original_exception)
         OCIError === error &&
-            (error.code.in?([*error_code]) ||
+            ([*error_code].include?(error.code) ||
              # ORA-06512: at line 1
              # ORA-20100: some exception description <--- real exception code in the second line
              error.code == UNHANDLED_ERROR &&
