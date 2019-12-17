@@ -66,9 +66,7 @@ module ActiveRecord::PLSQL
       end
 
       def pipelined_function_name
-        return @full_function_name if defined? @full_function_name
-        package_name, function_name = @pipelined_function.package, @pipelined_function.procedure
-        @full_function_name = [package_name, function_name].compact.join('.')
+        [@pipelined_function.package, @pipelined_function.procedure].compact.join('.')
       end
 
       def arel_table
