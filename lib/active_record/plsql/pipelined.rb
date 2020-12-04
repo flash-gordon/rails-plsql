@@ -98,7 +98,11 @@ module ActiveRecord::PLSQL
       end
 
       def predicate_builder
-        @_predicate_builder ||= super.extend(DisableBinding)
+        if pipelined?
+          @_predicate_builder ||= super.extend(DisableBinding)
+        else
+          super
+        end
       end
 
       private
