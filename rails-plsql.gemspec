@@ -12,8 +12,8 @@ Gem::Specification.new do |s|
   s.files = Dir['lib/**/*'] + %w(MIT-LICENSE README.md)
 
   s.add_dependency('ruby-plsql', ['~> 0.6.0'])
-  s.add_dependency('activerecord', ['~> 5.1.0'])
-  s.add_dependency('activerecord-oracle_enhanced-adapter', ['~> 1.8.2'])
+  s.add_dependency('activerecord', ['~> 5.2.8.1'])
+  s.add_dependency('activerecord-oracle_enhanced-adapter', ['~> 5.2'])
 
   s.require_paths = %w(lib)
 end
